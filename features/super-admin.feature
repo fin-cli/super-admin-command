@@ -1,30 +1,30 @@
 Feature: Manage super admins associated with a multisite instance
 
   Scenario: Add, list, and remove super admins.
-    Given a WP multisite installation
+    Given a FP multisite installation
 
-    When I run `wp user create superadmin superadmin@example.com`
-    And I run `wp super-admin list`
+    When I run `fp user create superadmin superadmin@example.com`
+    And I run `fp super-admin list`
     Then STDOUT should be:
       """
       admin
       """
 
-    When I run `wp super-admin add superadmin`
+    When I run `fp super-admin add superadmin`
     Then STDOUT should be:
       """
       Success: Granted super-admin capabilities to 1 user.
       """
     And the return code should be 0
 
-    When I run `wp super-admin list`
+    When I run `fp super-admin list`
     Then STDOUT should be:
       """
       admin
       superadmin
       """
 
-    When I try `wp super-admin add superadmin`
+    When I try `fp super-admin add superadmin`
     Then STDERR should be:
       """
       Warning: User 'superadmin' already has super-admin capabilities.
@@ -35,33 +35,33 @@ Feature: Manage super admins associated with a multisite instance
       """
     And the return code should be 0
 
-    When I run `wp super-admin list`
+    When I run `fp super-admin list`
     Then STDOUT should be:
       """
       admin
       superadmin
       """
 
-    When I run `wp super-admin list --format=table`
+    When I run `fp super-admin list --format=table`
     Then STDOUT should be a table containing rows:
       | user_login |
       | admin      |
       | superadmin |
 
-    When I run `wp super-admin remove admin`
-    And I run `wp super-admin list`
+    When I run `fp super-admin remove admin`
+    And I run `fp super-admin list`
     Then STDOUT should be:
       """
       superadmin
       """
 
-    When I run `wp super-admin list --format=json`
+    When I run `fp super-admin list --format=json`
     Then STDOUT should be:
       """
       [{"user_login":"superadmin"}]
       """
 
-    When I try `wp super-admin add noadmin`
+    When I try `fp super-admin add noadmin`
     Then STDERR should be:
       """
       Warning: Invalid user ID, email or login: 'noadmin'
@@ -69,7 +69,7 @@ Feature: Manage super admins associated with a multisite instance
       """
     And the return code should be 1
 
-    When I try `wp super-admin add admin noadmin`
+    When I try `fp super-admin add admin noadmin`
     Then STDERR should be:
       """
       Warning: Invalid user ID, email or login: 'noadmin'
@@ -77,7 +77,7 @@ Feature: Manage super admins associated with a multisite instance
       """
     And the return code should be 1
 
-    When I try `wp super-admin remove noadmin`
+    When I try `fp super-admin remove noadmin`
     Then STDERR should be:
       """
       Warning: Invalid user ID, email or login: 'noadmin'
@@ -85,7 +85,7 @@ Feature: Manage super admins associated with a multisite instance
       """
     And the return code should be 1
 
-    When I try `wp super-admin remove admin admin@example.com noadmin superadmin`
+    When I try `fp super-admin remove admin admin@example.com noadmin superadmin`
     Then STDERR should be:
       """
       Warning: Invalid user ID, email or login: 'noadmin'
@@ -95,18 +95,18 @@ Feature: Manage super admins associated with a multisite instance
       Success: Revoked super-admin capabilities from 2 of 3 users. There are no remaining super admins.
       """
 
-    When I run `wp super-admin add superadmin`
-    And I try `wp super-admin remove admin superadmin`
+    When I run `fp super-admin add superadmin`
+    And I try `fp super-admin remove admin superadmin`
     Then STDOUT should be:
       """
       Success: Revoked super-admin capabilities from 1 of 2 users. There are no remaining super admins.
       """
     And STDERR should be empty
 
-    When I run `wp super-admin list`
+    When I run `fp super-admin list`
     Then STDOUT should be empty
 
-    When I try `wp super-admin remove superadmin`
+    When I try `fp super-admin remove superadmin`
     Then STDERR should be:
       """
       Error: No super admins to revoke super-admin privileges from.
@@ -114,20 +114,20 @@ Feature: Manage super admins associated with a multisite instance
     And STDOUT should be empty
     And the return code should be 1
 
-    When I run `wp super-admin add superadmin admin`
-    And I run `wp super-admin remove superadmin admin`
+    When I run `fp super-admin add superadmin admin`
+    And I run `fp super-admin remove superadmin admin`
     Then STDOUT should be:
       """
       Success: Revoked super-admin capabilities from 2 users. There are no remaining super admins.
       """
     And STDERR should be empty
 
-    When I run `wp super-admin list`
+    When I run `fp super-admin list`
     Then STDOUT should be empty
 
-    When I run `wp user create admin2 admin2@example.com`
-    And I run `wp super-admin add superadmin admin admin2`
-    And I run `wp super-admin list`
+    When I run `fp user create admin2 admin2@example.com`
+    And I run `fp super-admin add superadmin admin admin2`
+    And I run `fp super-admin list`
     Then STDOUT should be:
       """
       superadmin
@@ -135,15 +135,15 @@ Feature: Manage super admins associated with a multisite instance
       admin2
       """
 
-    When I run `wp eval 'global $wpdb; $wpdb->delete( $wpdb->users, array( "user_login" => "admin2" ) );'`
-    And I run `wp user list --field=user_login --orderby=user_login`
+    When I run `fp eval 'global $fpdb; $fpdb->delete( $fpdb->users, array( "user_login" => "admin2" ) );'`
+    And I run `fp user list --field=user_login --orderby=user_login`
     Then STDOUT should be:
       """
       admin
       superadmin
       """
 
-    When I run `wp super-admin list`
+    When I run `fp super-admin list`
     Then STDOUT should be:
       """
       superadmin
@@ -151,7 +151,7 @@ Feature: Manage super admins associated with a multisite instance
       admin2
       """
 
-    When I try `wp super-admin remove admin2`
+    When I try `fp super-admin remove admin2`
     Then STDERR should be:
       """
       Warning: Invalid user ID, email or login: 'admin2'
@@ -161,7 +161,7 @@ Feature: Manage super admins associated with a multisite instance
       Success: Revoked super-admin capabilities from 1 user.
       """
 
-    When I try `wp super-admin remove 999999`
+    When I try `fp super-admin remove 999999`
     Then STDERR should be:
       """
       Warning: Invalid user ID, email or login: '999999'
@@ -170,8 +170,8 @@ Feature: Manage super admins associated with a multisite instance
     And STDOUT should be empty
     And the return code should be 1
 
-    When I run `wp user create notadmin notadmin@example.com`
-    And I try `wp super-admin remove notadmin notuser`
+    When I run `fp user create notadmin notadmin@example.com`
+    And I try `fp super-admin remove notadmin notuser`
     Then STDERR should be:
       """
       Warning: Invalid user ID, email or login: 'notuser'
@@ -181,31 +181,31 @@ Feature: Manage super admins associated with a multisite instance
     And the return code should be 1
 
   Scenario: List super admins in ids format.
-    Given a WP multisite installation
+    Given a FP multisite installation
 
-    When I run `wp user get admin --field=ID`
+    When I run `fp user get admin --field=ID`
     Then save STDOUT as {USER_1}
 
-    When I run `wp user create admin2 admin2@example.com --porcelain`
+    When I run `fp user create admin2 admin2@example.com --porcelain`
     Then save STDOUT as {USER_2}
 
-    When I run `wp super-admin add admin2`
-    And I run `wp super-admin list --format=ids`
+    When I run `fp super-admin add admin2`
+    And I run `fp super-admin list --format=ids`
     Then STDOUT should be:
       """
       {USER_1} {USER_2}
       """
 
   Scenario: Manage a super admin user_login 'admin'
-    Given a WP multisite installation
+    Given a FP multisite installation
 
-    When I run `wp user get admin --field=user_login`
+    When I run `fp user get admin --field=user_login`
     Then STDOUT should contain:
       """
       admin
       """
 
-    When I try `wp super-admin add admin`
+    When I try `fp super-admin add admin`
     Then STDOUT should be:
       """
       Success: Super admins remain unchanged.
@@ -215,62 +215,62 @@ Feature: Manage super admins associated with a multisite instance
       Warning: User 'admin' already has super-admin capabilities.
       """
 
-    When I run `wp super-admin remove admin`
+    When I run `fp super-admin remove admin`
     Then STDOUT should be:
       """
       Success: Revoked super-admin capabilities from 1 user. There are no remaining super admins.
       """
 
-    When I run `wp super-admin list`
+    When I run `fp super-admin list`
     Then STDOUT should be empty
 
-    When I run `wp super-admin add admin`
+    When I run `fp super-admin add admin`
     Then STDOUT should be:
       """
       Success: Granted super-admin capabilities to 1 user.
       """
     And STDERR should be empty
 
-    When I run `wp super-admin list`
+    When I run `fp super-admin list`
     Then STDOUT should be:
       """
       admin
       """
 
   Scenario: Handle a site with an empty site_admins option without errors
-    Given a WP multisite installation
+    Given a FP multisite installation
 
-    When I run `wp site option set site_admins ''`
+    When I run `fp site option set site_admins ''`
     Then STDOUT should be:
       """
       Success: Updated 'site_admins' site option.
       """
     And STDERR should be empty
 
-    When I run `wp super-admin list`
+    When I run `fp super-admin list`
     Then STDERR should be empty
 
   Scenario: Hooks should be firing as expected
-    Given a WP multisite installation
-    And a wp-content/mu-plugins/test-hooks.php file:
+    Given a FP multisite installation
+    And a fp-content/mu-plugins/test-hooks.php file:
       """
       <?php
       add_action( 'grant_super_admin', static function () {
-        WP_CLI::log( 'grant_super_admin hook was fired.' );
+        FP_CLI::log( 'grant_super_admin hook was fired.' );
       });
       add_action( 'granted_super_admin', static function () {
-        WP_CLI::log( 'granted_super_admin hook was fired.' );
+        FP_CLI::log( 'granted_super_admin hook was fired.' );
       });
       add_action( 'revoke_super_admin', static function () {
-        WP_CLI::log( 'revoke_super_admin hook was fired.' );
+        FP_CLI::log( 'revoke_super_admin hook was fired.' );
       });
       add_action( 'revoked_super_admin', static function () {
-        WP_CLI::log( 'revoked_super_admin hook was fired.' );
+        FP_CLI::log( 'revoked_super_admin hook was fired.' );
       });
       """
 
-    When I run `wp user create superadmin superadmin@example.com`
-    And I run `wp super-admin add superadmin`
+    When I run `fp user create superadmin superadmin@example.com`
+    And I run `fp super-admin add superadmin`
     Then STDOUT should contain:
       """
       grant_super_admin hook was fired.
@@ -280,7 +280,7 @@ Feature: Manage super admins associated with a multisite instance
       granted_super_admin hook was fired.
       """
 
-    When I try `wp super-admin add superadmin`
+    When I try `fp super-admin add superadmin`
     Then STDOUT should contain:
       """
       grant_super_admin hook was fired.
@@ -290,7 +290,7 @@ Feature: Manage super admins associated with a multisite instance
       granted_super_admin hook was fired.
       """
 
-    When I run `wp super-admin remove admin`
+    When I run `fp super-admin remove admin`
     Then STDOUT should contain:
       """
       revoke_super_admin hook was fired.
@@ -300,7 +300,7 @@ Feature: Manage super admins associated with a multisite instance
       revoked_super_admin hook was fired.
       """
 
-    When I try `wp super-admin add noadmin`
+    When I try `fp super-admin add noadmin`
     Then STDOUT should not contain:
       """
       grant_super_admin hook was fired.
@@ -310,7 +310,7 @@ Feature: Manage super admins associated with a multisite instance
       granted_super_admin hook was fired.
       """
 
-    When I try `wp super-admin add admin noadmin`
+    When I try `fp super-admin add admin noadmin`
     Then STDOUT should contain:
       """
       grant_super_admin hook was fired.
@@ -320,7 +320,7 @@ Feature: Manage super admins associated with a multisite instance
       granted_super_admin hook was fired.
       """
 
-    When I try `wp super-admin remove noadmin`
+    When I try `fp super-admin remove noadmin`
     Then STDOUT should not contain:
       """
       revoke_super_admin hook was fired.
@@ -330,7 +330,7 @@ Feature: Manage super admins associated with a multisite instance
       revoked_super_admin hook was fired.
       """
 
-    When I try `wp super-admin remove admin admin@example.com noadmin superadmin`
+    When I try `fp super-admin remove admin admin@example.com noadmin superadmin`
     Then STDOUT should contain:
       """
       revoke_super_admin hook was fired.
@@ -340,7 +340,7 @@ Feature: Manage super admins associated with a multisite instance
       revoked_super_admin hook was fired.
       """
 
-    When I try `wp super-admin remove superadmin`
+    When I try `fp super-admin remove superadmin`
     Then STDOUT should contain:
       """
       revoke_super_admin hook was fired.

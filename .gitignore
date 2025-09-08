@@ -2,7 +2,7 @@
 .phpcs.xml
 phpunit.xml
 phpcs.xml
-wp-cli.local.yml
+fp-cli.local.yml
 node_modules/
 vendor/
 *.zip
