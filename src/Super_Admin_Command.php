@@ -1,6 +1,6 @@
 <?php
 
-use FP_CLI\Fetchers\User as UserFetcher;
+use FIN_CLI\Fetchers\User as UserFetcher;
 
 /**
  * Lists, adds, or removes super admin users on a multisite installation.
@@ -8,21 +8,21 @@ use FP_CLI\Fetchers\User as UserFetcher;
  * ## EXAMPLES
  *
  *     # List user with super-admin capabilities.
- *     $ fp super-admin list
+ *     $ fin super-admin list
  *     supervisor
  *     administrator
  *
  *     # Grant super-admin privileges to the user.
- *     $ fp super-admin add superadmin2
+ *     $ fin super-admin add superadmin2
  *     Success: Granted super-admin capabilities to 1 user.
  *
  *     # Revoke super-admin privileges from the user.
- *     $ fp super-admin remove superadmin2
+ *     $ fin super-admin remove superadmin2
  *     Success: Revoked super-admin capabilities from 1 user.
  *
- * @package fp-cli
+ * @package fin-cli
  */
-class Super_Admin_Command extends FP_CLI_Command {
+class Super_Admin_Command extends FIN_CLI_Command {
 
 	/**
 	 * @var array<string>
@@ -32,7 +32,7 @@ class Super_Admin_Command extends FP_CLI_Command {
 	];
 
 	/**
-	 * @var \FP_CLI\Fetchers\User
+	 * @var \FIN_CLI\Fetchers\User
 	 */
 	private $fetcher;
 
@@ -62,7 +62,7 @@ class Super_Admin_Command extends FP_CLI_Command {
 	 * ## EXAMPLES
 	 *
 	 *     # List user with super-admin capabilities.
-	 *     $ fp super-admin list
+	 *     $ fin super-admin list
 	 *     supervisor
 	 *     administrator
 	 *
@@ -73,7 +73,7 @@ class Super_Admin_Command extends FP_CLI_Command {
 
 		if ( 'list' === $assoc_args['format'] ) {
 			foreach ( $super_admins as $user_login ) {
-				FP_CLI::line( $user_login );
+				FIN_CLI::line( $user_login );
 			}
 		} else {
 			$output_users = [];
@@ -86,19 +86,19 @@ class Super_Admin_Command extends FP_CLI_Command {
 			}
 
 			if ( ! empty( $assoc_args['format'] ) && 'ids' === $assoc_args['format'] ) {
-				$formatter = new \FP_CLI\Formatter( $assoc_args );
+				$formatter = new \FIN_CLI\Formatter( $assoc_args );
 
 				$user_ids = [];
 				foreach ( $super_admins as $user_login ) {
 					/**
-					 * @var \FP_User $user_obj
+					 * @var \FIN_User $user_obj
 					 */
 					$user_obj   = get_user_by( 'login', $user_login );
 					$user_ids[] = $user_obj->ID;
 				}
 				$formatter->display_items( $user_ids );
 			} else {
-				$formatter = new \FP_CLI\Formatter( $assoc_args, $this->fields );
+				$formatter = new \FIN_CLI\Formatter( $assoc_args, $this->fields );
 				$formatter->display_items( $output_users );
 			}
 		}
@@ -115,7 +115,7 @@ class Super_Admin_Command extends FP_CLI_Command {
 	 * ## EXAMPLES
 	 *
 	 *     # Grant super-admin privileges to the user.
-	 *     $ fp super-admin add superadmin2
+	 *     $ fin super-admin add superadmin2
 	 *     Success: Granted super-admin capabilities to 1 user.
 	 */
 	public function add( $args, $_ ) {
@@ -136,7 +136,7 @@ class Super_Admin_Command extends FP_CLI_Command {
 			do_action( 'grant_super_admin', (int) $user->ID ); // phpcs:ignore FinPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
 
 			if ( in_array( $user->user_login, $super_admins, true ) ) {
-				FP_CLI::warning( "User '{$user->user_login}' already has super-admin capabilities." );
+				FIN_CLI::warning( "User '{$user->user_login}' already has super-admin capabilities." );
 				continue;
 			}
 
@@ -148,20 +148,20 @@ class Super_Admin_Command extends FP_CLI_Command {
 		if ( count( $super_admins ) === $num_super_admins ) {
 			if ( $errors ) {
 				$user_count = count( $args );
-				FP_CLI::error( "Couldn't grant super-admin capabilities to {$errors} of {$user_count} users." );
+				FIN_CLI::error( "Couldn't grant super-admin capabilities to {$errors} of {$user_count} users." );
 			} else {
-				FP_CLI::success( 'Super admins remain unchanged.' );
+				FIN_CLI::success( 'Super admins remain unchanged.' );
 			}
 		} elseif ( update_site_option( 'site_admins', $super_admins ) ) {
 			if ( $errors ) {
 				$user_count = count( $args );
-				FP_CLI::error( "Only granted super-admin capabilities to {$successes} of {$user_count} users." );
+				FIN_CLI::error( "Only granted super-admin capabilities to {$successes} of {$user_count} users." );
 			} else {
 				$message = $successes > 1 ? 'users' : 'user';
-				FP_CLI::success( "Granted super-admin capabilities to {$successes} {$message}." );
+				FIN_CLI::success( "Granted super-admin capabilities to {$successes} {$message}." );
 			}
 		} else {
-			FP_CLI::error( 'Site options update failed.' );
+			FIN_CLI::error( 'Site options update failed.' );
 		}
 
 		foreach ( $new_super_admins as $user_id ) {
@@ -180,12 +180,12 @@ class Super_Admin_Command extends FP_CLI_Command {
 	 * ## EXAMPLES
 	 *
 	 *     # Revoke super-admin privileges from the user.
-	 *     $ fp super-admin remove superadmin2
+	 *     $ fin super-admin remove superadmin2
 	 *     Success: Revoked super-admin capabilities from 1 user.
 	 */
 	public function remove( $args, $_ ) {
 		$users             = $this->fetcher->get_many( $args );
-		$user_logins       = $users ? array_values( array_unique( fp_list_pluck( $users, 'user_login' ) ) ) : [];
+		$user_logins       = $users ? array_values( array_unique( fin_list_pluck( $users, 'user_login' ) ) ) : [];
 		$user_logins_count = count( $user_logins );
 
 		$user_ids = [];
@@ -197,7 +197,7 @@ class Super_Admin_Command extends FP_CLI_Command {
 
 		$super_admins = self::get_admins();
 		if ( ! $super_admins ) {
-			FP_CLI::error( 'No super admins to revoke super-admin privileges from.' );
+			FIN_CLI::error( 'No super admins to revoke super-admin privileges from.' );
 		}
 
 		if ( $user_logins_count < count( $args ) ) {
@@ -219,12 +219,12 @@ class Super_Admin_Command extends FP_CLI_Command {
 			$user_logins_count = count( $user_logins );
 		}
 		if ( ! $user_logins ) {
-			FP_CLI::error( 'No valid user logins given to revoke super-admin privileges from.' );
+			FIN_CLI::error( 'No valid user logins given to revoke super-admin privileges from.' );
 		}
 
 		$update_super_admins = array_diff( $super_admins, $user_logins );
 		if ( $update_super_admins === $super_admins ) {
-			FP_CLI::error( $user_logins_count > 1 ? 'None of the given users is a super admin.' : 'The given user is not a super admin.' );
+			FIN_CLI::error( $user_logins_count > 1 ? 'None of the given users is a super admin.' : 'The given user is not a super admin.' );
 		}
 
 		update_site_option( 'site_admins', $update_super_admins );
@@ -239,7 +239,7 @@ class Super_Admin_Command extends FP_CLI_Command {
 		if ( ! $update_super_admins ) {
 			$msg .= ' There are no remaining super admins.';
 		}
-		FP_CLI::success( $msg );
+		FIN_CLI::success( $msg );
 
 		$removed_logins = array_intersect( $user_logins, $super_admins );
 
@@ -250,7 +250,7 @@ class Super_Admin_Command extends FP_CLI_Command {
 				$user_id = $user_ids[ $user_login ];
 			} else {
 				$user = get_user_by( 'login', $user_login );
-				if ( $user instanceof FP_User ) {
+				if ( $user instanceof FIN_User ) {
 					$user_id = $user->ID;
 				}
 			}

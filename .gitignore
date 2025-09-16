@@ -2,7 +2,7 @@
 .phpcs.xml
 phpunit.xml
 phpcs.xml
-fp-cli.local.yml
+fin-cli.local.yml
 node_modules/
 vendor/
 *.zip
